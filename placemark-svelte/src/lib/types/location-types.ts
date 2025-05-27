@@ -11,3 +11,21 @@ export interface User {
   password: string;
   _id?: string;
 }
+
+export interface Folder {
+    _id: string;
+    name: string;
+    userId: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface Location {
+    _id?: string;
+    title: string;
+    catergory: string;
+    description: string;
+    folderid: string
+    latitude?: number;
+    longitude?: number;
+}
