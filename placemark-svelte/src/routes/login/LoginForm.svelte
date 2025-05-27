@@ -17,6 +17,7 @@
       loggedInUser.name = session.name;
       loggedInUser.token = session.token;
       loggedInUser._id = session._id;
+      localStorage.location = JSON.stringify(loggedInUser);
       console.log(`Session: ${JSON.stringify(session)}`);
       goto("/location");
     } else {
