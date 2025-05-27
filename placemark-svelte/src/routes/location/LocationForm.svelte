@@ -1,11 +1,11 @@
 <script lang="ts">
-    import Coordinates from "$lib/ui/Coordinates.svelte";
+  import Coordinates from "$lib/ui/Coordinates.svelte";
 
-    let lat = $state(52.160858);
+  let lat = $state(52.160858);
   let lng = $state(-7.15242);
 
-   async function donate() {
-    console.log(`Just donated: ${amount} to ${selectedCandidate} via ${selectedMethod} payment`);
+  async function location() {
+    console.log(`New location: ${locationName} in category ${category}`);
     console.log(`lat: ${lat}, lng: ${lng}`);
   }
 </script>
@@ -38,7 +38,7 @@
   </div>
   <div class="field">
     <div class="control">
-      <label class="label" for="visit">Visit Again?:</label>
+      <label class="label" for="locationType">Visit Again?:</label>
       <input class="radio" type="radio" /> Yes
       <input class="radio" type="radio" /> No
     </div>
