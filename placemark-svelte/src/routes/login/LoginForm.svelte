@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { loggedInUser } from "$lib/runes.svelte";
+  import { locationService } from "$lib/services/location-service";
   import Message from "$lib/ui/Message.svelte";
   import UserCredentials from "$lib/ui/UserCredentials.svelte";
 
@@ -9,14 +10,20 @@
   let message = $state("");
 
   async function login() {
-    const success = true;
-    if (success) {
+    console.log(`Attempting to log in with email: ${email} and password: ${password}`);
+    let session = await locationService.login(email, password);
+    if (session) {
       loggedInUser.email = email;
+      loggedInUser.name = session.name;
+      loggedInUser.token = session.token;
+      loggedInUser._id = session._id;
+      localStorage.location = JSON.stringify(loggedInUser);
+      console.log(`Session: ${JSON.stringify(session)}`);
       goto("/location");
     } else {
       email = "";
       password = "";
-      message = "Error Trying to login in";
+      message = "Error trying to log in";
     }
   }
 </script>
@@ -26,5 +33,5 @@
     <Message {message} />
   {/if}
   <UserCredentials bind:email bind:password />
-  <button onclick={() => login()} class="button">Log In</button>
+  <button class="button is-success is-fullwidth" on:click={login}>Log In</button>
 </div>

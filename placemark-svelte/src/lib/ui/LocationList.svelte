@@ -1,46 +1,14 @@
 <script lang="ts">
-  export let locations = [
-    {
-      name: "Cliffs of Moher",
-      type: "Countryside - Clare",
-      user: "fabian@email.com",
-      category: "Other",
-      visit: "yes",
-      notes: "Beautiful cliffs",
-      lat: "52.161290",
-      lng: "-7.51540"
-    },
-    {
-      name: "Book of Kells",
-      type: "City - Dublin",
-      user: "kris@email.com",
-      category: "Museum",
-      visit: "yes",
-      notes: "Incredible historical artifact",
-      lat: "52.161290",
-      lng: "-7.51540"
-    },
-    {
-      name: "Guinness Storehouse",
-      type: "City - Dublin",
-      user: "fabian@email.com",
-      category: "Other",
-      visit: "yes",
-      notes: "Great brewery tour",
-      lat: "52.161290",
-      lng: "-7.51540"
-    }
-  ];
+    let { locations } = $props();
 </script>
 
 <table class="table is-fullwidth">
   <thead>
     <tr>
       <th>User</th>
-      <th>Name</th>
-      <th>Type</th>
+      <th>Folder</th>
+      <th>Location Name</th>
       <th>Category</th>
-      <th>Visit Again</th>
       <th>Notes</th>
     </tr>
   </thead>
@@ -48,21 +16,19 @@
     {#each locations as location}
       <tr>
         <td>
-          {location.user}
+          {location.user?.name || location.userName || "Unknown User"}
         </td>
         <td>
-          {location.name}
-        </td><td>
-          {location.type}
+          {location.folder?.name || location.folder?.title || location.folderName || "Unknown Folder"}
+        </td>
+        <td>
+          {location.title}
         </td>
         <td>
           {location.category}
         </td>
         <td>
-          {location.visit}
-        </td>
-        <td>
-          {location.notes}
+          {location.description}
         </td>
       </tr>
     {/each}
