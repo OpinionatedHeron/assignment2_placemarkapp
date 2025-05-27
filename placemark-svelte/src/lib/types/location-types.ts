@@ -15,6 +15,7 @@ export interface User {
 export interface Folder {
     _id: string;
     name: string;
+    title?: string;
     userId: string;
     createdAt: Date;
     updatedAt: Date;
@@ -28,4 +29,16 @@ export interface Location {
     folderid: string
     latitude?: number;
     longitude?: number;
+
+    folder?: {
+        _id: string;
+        title: string;
+        name: string;
+    };
+    user?: {
+        _id: string;
+        firstName: string;
+        lastName: string;
+        email: string;
+    };
 }

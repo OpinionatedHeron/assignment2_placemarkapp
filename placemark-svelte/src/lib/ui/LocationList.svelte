@@ -16,10 +16,10 @@
     {#each locations as location}
       <tr>
         <td>
-          {location.user}
+          {location.user?.name || location.userName || "Unknown User"}
         </td>
         <td>
-          {location.folder}
+          {location.folder?.name || location.folder?.title || location.folderName || "Unknown Folder"}
         </td>
         <td>
           {location.title}
