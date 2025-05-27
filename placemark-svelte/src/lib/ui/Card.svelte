@@ -5,7 +5,7 @@
 <div class="card mb-5">
   <header class="card-header">
     <p class="card-header-title">
-      <span class="icon"><i class="fas fa-compass"></i></span><span>{title}</span>
+      <span class="icon"><i class="fas fa-globe"></i></span><span>{title}</span>
     </p>
   </header>
   <div class="card-content">
