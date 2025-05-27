@@ -3,16 +3,16 @@
   import { locationService } from "$lib/services/location-service";
   import type { Folder } from "$lib/types/location-types";
 
-  let{
+  let {
     folders = [],
     selectedFolderId = $bindable(""),
     userToken = "",
     onLocationCreated = () => {}
   }: {
-    folders?: Folder[],
-    selectedFolderId?: string,
-    userToken?: string,
-    onLocationCreated?: () => void
+    folders?: Folder[];
+    selectedFolderId?: string;
+    userToken?: string;
+    onLocationCreated?: () => void;
   } = $props();
 
   let title = $state("");
@@ -46,7 +46,7 @@
     try {
       const locationData = {
         title: title.trim(),
-        category,
+        category: category,
         description: description.trim(),
         latitude: lat,
         longitude: lng
@@ -71,7 +71,7 @@
 
         onLocationCreated();
       } else {
-        errorMessage = "Failed to create location. Please try again.";
+        errorMessage = "";
       }
     } catch (error) {
       console.error("Error creating location:", error);
@@ -92,7 +92,7 @@
       <select bind:value={selectedFolderId} id="folder" required>
         <option value="">Choose folder...</option>
         {#each folders as folder}
-          <option value={folder._id}>{folder.title || folder.name}</option>
+          <option value={folder._id}>{folder.title}</option>
         {/each}
       </select>
     </div>
@@ -136,6 +136,11 @@
   </div>
 
   <Coordinates bind:lat bind:lng />
+  {#if errorMessage}
+    <div class="notification is-danger">
+      {errorMessage}
+    </div>
+  {/if}
 
   <div class="field">
     <div class="control">

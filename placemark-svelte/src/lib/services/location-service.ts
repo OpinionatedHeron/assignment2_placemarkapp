@@ -38,17 +38,6 @@ export const locationService = {
     }
   },
 
-  async location(location: Location, token: string) {
-    try{
-        axios.defaults.headers.common["Authorization"] = token;
-        const response = await axios.post(this.baseUrl + "/api/folders/" +  location.folder + "/locations", location);
-        return response.status === 201 && response.data._id;
-    } catch (error) {
-        console.error("Error during location creation:", error);
-        return false;
-    }
-  },
-
   async createFolder(folder: { name: string }, token: string): Promise<Folder | null> {
     try {
         axios.defaults.headers.common["Authorization"] = token;
@@ -64,7 +53,11 @@ export const locationService = {
     try {
       axios.defaults.headers.common["Authorization"] = token;
       const response = await axios.get(`${this.baseUrl}/api/folders`);
-      return response.data.folders || [];
+      const folders = response.data.folders || response.data || [];
+      return folders.map((folder: any) => ({
+        ...folder,
+        name: folder.title || folder.name, // Ensure the name is set correctly
+      }));
     } catch (error) {
       console.error("Error finding folders:", error);
       return [];
@@ -85,10 +78,16 @@ export const locationService = {
   async createLocation(folderId: string, location: Omit<Location, '_id' | 'folderid'>, token: string): Promise<Location | null> {
     try {
       axios.defaults.headers.common["Authorization"] = token;
+
+      //Bug logging due to constant issues
+      console.log("Creating location with folderId:", folderId, "and location data:", location);
+      console.log("Token being used:", token);
+
       const response = await axios.post(`${this.baseUrl}/api/folders/${folderId}/locations`, location);
       return response.status === 201 ? response.data : null;
     } catch (error) {
       console.error("Error creating location:", error);
+
       return null;
     }
   },

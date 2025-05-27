@@ -23,7 +23,7 @@ export interface Folder {
 export interface Location {
     _id?: string;
     title: string;
-    catergory: string;
+    category: string;
     description: string;
     folderid: string
     latitude?: number;
