@@ -1,9 +1,41 @@
 import axios from "axios";
 import type { Session, User } from "../types/location-types";
 import type { Folder, Location } from "../types/location-types";
+import { loggedInUser, currentLocations, currentFolders } from "$lib/runes.svelte";
 
 export const locationService = {
   baseUrl: "http://localhost:3000",
+
+  saveSession(session: Session, email: string) {
+    localStorage.location = JSON.stringify({
+        email: email,
+        name: session.name,
+        token: session.token,
+        _id: session._id
+    });
+  },
+
+  async restoreSession() {
+    const savedLoggedInUser = localStorage.location;
+    if (savedLoggedInUser) {
+        const session = JSON.parse(savedLoggedInUser);
+        loggedInUser.email = session.email;
+        loggedInUser.name = session.name;
+        loggedInUser.token = session.token;
+        locationService._id = session._id;
+    }
+    await this.refreshLocationInfo();
+  },
+
+  clearSession(){
+    currentLocations.locations = [];
+    currentFolders.folders = [];
+    loggedInUser.email = "";
+    loggedInUser.name = "";
+    loggedInUser.token = "";
+    loggedInUser._id = "";
+    localStorage.removeItem("location");
+  },
 
   async signup(user: User): Promise<boolean> {
     try {
@@ -22,13 +54,14 @@ export const locationService = {
         password
       });
       if (response.data.success && response.data.token) {
-        //removed bearer token from headers becuase it was causing issues with axios
         axios.defaults.headers.common["Authorization"] = response.data.token;
         const session: Session = {
           name: response.data.name,
           token: response.data.token,
           _id: response.data._id
         };
+        this.saveSession(session, email);
+        await this.refreshLocationInfo();
         return session;
       }
       return null;
@@ -79,11 +112,11 @@ export const locationService = {
     try {
       axios.defaults.headers.common["Authorization"] = token;
 
-      //Bug logging due to constant issues
       console.log("Creating location with folderId:", folderId, "and location data:", location);
       console.log("Token being used:", token);
 
       const response = await axios.post(`${this.baseUrl}/api/folders/${folderId}/locations`, location);
+      await this.refreshLocationInfo();
       return response.status === 201 ? response.data : null;
     } catch (error) {
       console.error("Error creating location:", error);
@@ -122,6 +155,13 @@ export const locationService = {
     } catch (error) {
       console.error("Error deleting location:", error);
       return false;
+    }
+  },
+
+  async refreshLocationInfo() {
+    if (loggedInUser.token) {
+      currentLocations.locations = await this.getLocations(loggedInUser.token);
+      currentFolders.folders = await this.getFolders(loggedInUser.token);
     }
   }
 };

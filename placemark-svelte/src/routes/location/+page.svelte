@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { loggedInUser, subTitle } from "$lib/runes.svelte";
+  import { loggedInUser, subTitle, currentLocations, currentFolders } from "$lib/runes.svelte";
   import { locationService } from "$lib/services/location-service";
   import Card from "$lib/ui/Card.svelte";
   import { onMount } from "svelte";
@@ -55,6 +55,13 @@
   } 
   loading = false;
   });
+
+  function handleLocationCreated(newLocation) {
+    currentLocation.set(newLocation);
+
+    const folder = folderList.find(f => f._id === newLocation.folderid);
+    if (folder) currentFolder.set(folder);
+  }
 </script>
 
 <div class="columns">
@@ -70,7 +77,10 @@
       {:else if error}
         <p class="error">{error}</p>
       {:else}
-        <LocationForm folders={folderList} userToken={loggedInUser.token} />
+        <LocationForm 
+        folders={folderList} 
+        userToken={loggedInUser.token}
+        onLocationCreated={handleLocationCreated} />
       {/if}
     </Card>
   </div>

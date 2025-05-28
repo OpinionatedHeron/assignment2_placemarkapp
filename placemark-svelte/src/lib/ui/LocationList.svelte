@@ -1,5 +1,6 @@
 <script lang="ts">
-    let { locations } = $props();
+    export let locations = [];
+    export let currentLocation = null;
 </script>
 
 <table class="table is-fullwidth">
@@ -14,7 +15,7 @@
   </thead>
   <tbody>
     {#each locations as location}
-      <tr>
+      <tr class={currentLocation && location.id === currentLocation.id ? "is-selected" : ""}>
         <td>
           {location.user?.name || location.userName || "Unknown User"}
         </td>
