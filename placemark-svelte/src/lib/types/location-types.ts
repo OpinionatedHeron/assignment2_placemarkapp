@@ -41,4 +41,9 @@ export interface Location {
         lastName: string;
         email: string;
     };
+} 
+
+export interface Dataset{
+    labels: string[];
+    dataset: [{ values: number[] }];
 }

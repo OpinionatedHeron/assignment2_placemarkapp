@@ -10,3 +10,14 @@ export const loggedInUser = $state({
 
  export const currentLocations = $state({ locations: [] as Location[] });
  export const currentFolders = $state({ folders: [] as Folder [] });
+
+ export const currentDataSets = $state({
+    locationsByCategory: {
+        labels: [] as string[],
+        datasets: [{ values: [] as number[] }]
+    },
+    locationsByFolder: {
+        labels: [] as string[],
+        datasets: [{ values: [] as number[] }]
+    },
+ });

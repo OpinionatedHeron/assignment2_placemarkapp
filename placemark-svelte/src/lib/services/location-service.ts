@@ -2,6 +2,7 @@ import axios from "axios";
 import type { Session, User } from "../types/location-types";
 import type { Folder, Location } from "../types/location-types";
 import { loggedInUser, currentLocations, currentFolders } from "$lib/runes.svelte";
+import { computeByCategory, computeByFolder } from "./location-utils";
 
 export const locationService = {
   baseUrl: "http://localhost:3000",
@@ -162,6 +163,8 @@ export const locationService = {
     if (loggedInUser.token) {
       currentLocations.locations = await this.getLocations(loggedInUser.token);
       currentFolders.folders = await this.getFolders(loggedInUser.token);
+      computeByCategory(currentLocations.locations);
+      computeByFolder(currentLocations.locations, currentFolders.folders);
     }
   }
 };
