@@ -1,5 +1,7 @@
-import { currentDataSets } from "$lib/runes.svelte";
+import { currentDataSets, loggedInUser } from "$lib/runes.svelte";
 import type { Location, Folder } from "$lib/types/location-types";
+import type LeafletMap from "$lib/ui/LeafletMap.svelte";
+import { locationService } from "$lib/services/location-service"
 
 export function computeByCategory(locations: Location[]) {
     const categoryCounts: Record<string, number> = {};
@@ -26,4 +28,22 @@ export function computeByFolder(locations: Location[], folders: Folder[]) {
 
     currentDataSets.locationsByFolder.labels = Object.keys(folderCounts);
     currentDataSets.locationsByFolder.datasets[0].values = Object.values(folderCounts);
+}
+
+export async function refreshLocationMap (map:LeafletMap){
+    await locationService.restoreSession();
+    const locations = await locationService.getLocations(loggedInUser.token);
+    locations.forEach((location: Location) => {
+        if (location.latitude && location.longitude){
+            const popup = `
+            <strong>${location.title}</strong><br>
+            Category: ${location.category || "N/A"}<br>
+            Folder: ${location.folder?.name || location.folder?.title || "N/A"}<br>
+            ${location.description ? `Notes: ${location.description}` : ""}
+            `;
+            map.addMarker(location.latitude, location.longitude, location.title);
+        }
+    });
+    const lastLocation = locations[locations.length -1];
+    if (lastLocation) map.moveTo(lastLocation.latitude, lastLocation.longitude);
 }

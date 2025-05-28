@@ -2,14 +2,22 @@
   import "leaflet/dist/leaflet.css";
   import { onMount } from "svelte";
   import type { Control, Map as LeafletMap } from "leaflet";
+  import { v4 as uuidv4 } from "uuid";
 
-  let { height = 80 } = $props();
-  let id = "home-map-id";
+  let {
+    height = 80,
+    locations = [],
+    categoryLayers = null,
+    folderLayers = null,
+    mapType = "basic"
+  } = $props();
+
+  let id = `map-${uuidv4()}`;
   let location = { lat: 53.2734, lng: -7.7783203 };
   let zoom = 8;
   let minZoom = 7;
   let activeLayer = "Terrain";
-  
+
   let imap: LeafletMap;
   let control: Control.Layers;
   let overlays: Control.LayersObject = {};
@@ -19,6 +27,7 @@
   onMount(async () => {
     const leaflet = await import("leaflet");
     L = leaflet.default;
+
     baseLayers = {
       Terrain: leaflet.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 17,
@@ -28,7 +37,7 @@
       Satellite: leaflet.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         {
-            attribution:
+          attribution:
             "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
         }
       )
@@ -41,8 +50,49 @@
       minZoom: minZoom,
       layers: [defaultLayer]
     });
+
+    if (mapType === "category" && categoryLayers) {
+      createCategoryOverlays(leaflet);
+    } else if (mapType === "folder" && folderLayers) {
+      createFolderOverlays(leaflet);
+    }
+
     control = leaflet.control.layers(baseLayers, overlays).addTo(imap);
   });
+
+  function createCategoryOverlays(leaflet: any) {
+    for (const [categoryName, locations] of Object.entries(categoryLayers)) {
+      const layerGroup = leaflet.layerGroup();
+
+      locations.forEach((loc: any) => {
+        if (loc.lat && loc.lng) {
+          const marker = leaflet.marker([loc.lat, loc.lng]).addTo(layerGroup);
+          const popup = leaflet.popup({ autoClose: false, closeOnClick: false});
+          popup.setContent(loc.popup || loc.title);
+          marker.bindPopup(popup);
+        }
+      });
+
+      overlays[categoryName] = layerGroup;
+    }
+  }
+
+  function createFolderOverlays(leaflet: any) {
+    for (const [folderName, locations] of Object.entries(folderLayers)) {
+      const layerGroup = leaflet.layerGroup();
+
+      locations.forEach((loc: any) => {
+        if (loc.lat && loc.lng) {
+          const marker = leaflet.marker([loc.lat, loc.lng]).addTo(layerGroup);
+          const popup = leaflet.popup({ autoClose: false, closeOnClick: false});
+          popup.setContent(loc.popup || loc.title);
+          marker.bindPopup(popup);
+        }
+      });
+
+      overlays[folderName] = layerGroup;
+    }
+  }
 
   export async function addMarker(lat: number, lng: number, popupText: string) {
     const leaflet = await import("leaflet");

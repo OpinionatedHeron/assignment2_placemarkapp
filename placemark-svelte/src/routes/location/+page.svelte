@@ -6,16 +6,21 @@
   import LocationForm from "./LocationForm.svelte";
   import type { Folder, Location } from "$lib/types/location-types";
   import LocationList from "$lib/ui/LocationList.svelte";
+  import LeafletMap from "$lib/ui/LeafletMap.svelte";
   // @ts-ignore
   import Chart from "svelte-frappe-charts";
 
   subTitle.text = "Add Locations";
+
+  let map: LeafletMap;
   let folderList: Folder[] = [];
   let locations: Location[] = [];
   let loading = true;
   let error = "";
 
   onMount(async () => {
+    await locationService.restoreSession();
+    
     if (!loggedInUser.token) {
       error = "Please log in to view locations.";
       loading = false;
@@ -50,6 +55,20 @@
           }
         };
       });
+
+      locations.forEach((location: Location) => {
+        if (location.latitude && location.longitude) {
+          const popup = `
+            <strong>${location.title}</strong><br>
+            Category: ${location.category || "N/A"}<br>
+            Folder: ${location.folder?.name || location.folder?.title || "N/A"}<br>
+            ${location.description ? `Notes: ${location.description}` : ""}
+            `;
+          map.addMarker(location.latitude, location.longitude, location.title);
+        }
+      });
+      const lastLocation = locations[locations.length - 1];
+      if (lastLocation) map.moveTo(lastLocation.latitude, lastLocation.longitude);
     } catch (e) {
       console.error("Error loading information:", e);
       error = "Failed to load data. Please try again.";
@@ -66,10 +85,9 @@
 </script>
 
 <div class="columns">
-  <div class="column>">
-    <Card title="Locations Added to Date">
-      <Chart data={currentDataSets.locationsByCategory} type="bar" />
-      <LocationList {locations} />
+  <div class="column">
+    <Card title="Location Map">
+      <LeafletMap height={60} bind:this={map} />
     </Card>
   </div>
   <div class="column">
@@ -85,6 +103,14 @@
           onLocationCreated={handleLocationCreated}
         />
       {/if}
+    </Card>
+  </div>
+</div>
+<div class="columns">
+  <div class="column">
+    <Card title="Locations Added to Date">
+      <Chart data={currentDataSets.locationsByCategory} type="bar" />
+      <LocationList {locations} />
     </Card>
   </div>
 </div>
