@@ -222,7 +222,7 @@
                           <strong>{location.title}</strong>
                         </td>
                         <td>
-                          <span class="tag is-light">{location.category}</span>
+                          {location.category}
                         </td>
                         <td>
                           {location.description || 'No description'}
