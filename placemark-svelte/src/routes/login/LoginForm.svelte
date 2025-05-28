@@ -13,13 +13,7 @@
     console.log(`Attempting to log in with email: ${email} and password: ${password}`);
     let session = await locationService.login(email, password);
     if (session) {
-      loggedInUser.email = email;
-      loggedInUser.name = session.name;
-      loggedInUser.token = session.token;
-      loggedInUser._id = session._id;
-      localStorage.location = JSON.stringify(loggedInUser);
-      console.log(`Session: ${JSON.stringify(session)}`);
-      goto("/location");
+      window.location.href = "/location";
     } else {
       email = "";
       password = "";

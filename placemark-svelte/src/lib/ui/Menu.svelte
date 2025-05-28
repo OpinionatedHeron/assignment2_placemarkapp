@@ -15,6 +15,7 @@
         <a class="navbar-item" href="/folder"> Folder </a>
         <a class="navbar-item" href="/location"> Locations </a>
         <a class="navbar-item" href="/report"> Report </a>
+        <a class="navbar-item" href="/charts"> Charts </a>
         <a class="navbar-item" href="/logout"> Logout [{loggedInUser.name}]</a>
       </div>
       <div></div>

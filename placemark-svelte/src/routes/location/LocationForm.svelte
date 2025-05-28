@@ -2,6 +2,7 @@
   import Coordinates from "$lib/ui/Coordinates.svelte";
   import { locationService } from "$lib/services/location-service";
   import type { Folder } from "$lib/types/location-types";
+  import { currentLocations, currentFolders } from "$lib/runes.svelte";
 
   let {
     folders = [],
@@ -21,8 +22,15 @@
   let lat = $state(52.160858);
   let lng = $state(-7.15242);
 
+  let currentLocation = $state(null);
+  let currentFolder = $state(null);
+
   let errorMessage = $state("");
   let isValid = $state(false);
+
+  $effect(() => {
+    currentFolder = folders.find((folder) => folder._id === selectedFolderId) || null;
+  });
 
   async function createLocation() {
     if (!title.trim()) {
@@ -52,8 +60,6 @@
         longitude: lng
       };
 
-      console.log("Creating location:", locationData);
-
       const result = await locationService.createLocation(
         selectedFolderId,
         locationData,
@@ -61,7 +67,7 @@
       );
 
       if (result) {
-        console.log("Location created successfully:", result);
+        currentLocation = result;
 
         title = "";
         category = "Restaurant";
@@ -113,7 +119,7 @@
   <div class="field">
     <label class="label" for="category">Select Location Category:</label>
     <div class="select is-fullwidth">
-      <select>
+      <select bind:value={category} id="category">
         <option>Restaurant</option>
         <option>Park</option>
         <option>Museum</option>
@@ -136,9 +142,17 @@
   </div>
 
   <Coordinates bind:lat bind:lng />
-  {#if errorMessage}
-    <div class="notification is-danger">
-      {errorMessage}
+  {#if currentFolder}
+    <div class="notification is-info is-light">
+      <strong>Current Folder:</strong>
+      {currentFolder.title}
+    </div>
+  {/if}
+
+  {#if currentLocation}
+    <div class="notification is-success is light">
+      <strong>Most Recent Location Added:</strong>
+      {currentLocation.title}
     </div>
   {/if}
 
