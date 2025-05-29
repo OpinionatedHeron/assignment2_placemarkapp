@@ -3,6 +3,7 @@
   import { locationService } from "$lib/services/location-service";
   import type { Folder } from "$lib/types/location-types";
   import { currentLocations, currentFolders } from "$lib/runes.svelte";
+    import { InputSanitizer } from "$lib/services/sanitizer-utils";
 
   let {
     folders = [],
@@ -29,10 +30,35 @@
   let isValid = $state(false);
 
   $effect(() => {
+    const validLat = InputSanitizer.sanitizeCoordinate(lat, 'lat');
+    const validLng = InputSanitizer.sanitizeCoordinate(lng, 'lng');
+
+    if (validLat === null) {
+      errorMessage = "Latitude must be between -90 and 90";
+    } else if (validLng === null) {
+      errorMessage = "Longitude must be between -180 and 180";
+    } else {
+      errorMessage="";
+    }
+  });
+
+  $effect(() => {
     currentFolder = folders.find((folder) => folder._id === selectedFolderId) || null;
   });
 
   async function createLocation() {
+
+    const sanitizedTitle = InputSanitizer.sanitizeText(title);
+    const sanitizedCategory = InputSanitizer.sanitizeText(category);
+    const sanitizedDescription = InputSanitizer.sanitizeText(description);
+    const sanitizedLat = InputSanitizer.sanitizeCoordinate(lat, 'lat');
+    const sanitizedLng = InputSanitizer.sanitizeCoordinate(lng, 'lng');
+
+    if (sanitizedLat === null || sanitizedLng === null) {
+      errorMessage = "Please enter valid coordinates";
+      return;
+    }
+
     if (!title.trim()) {
       errorMessage = "Location name is required.";
       return;
