@@ -3,6 +3,7 @@ import type { Session, User } from "../types/location-types";
 import type { Folder, Location } from "../types/location-types";
 import { loggedInUser, currentLocations, currentFolders } from "$lib/runes.svelte";
 import { computeByCategory, computeByFolder } from "./location-utils";
+import { InputSanitizer } from "./sanitizer-utils";
 
 export const locationService = {
   baseUrl: "http://localhost:3000",
@@ -50,10 +51,19 @@ export const locationService = {
 
   async login(email: string, password: string): Promise<Session | null> {
     try {
+
+      const sanitizedEmail = InputSanitizer.sanitizeEmail(email);
+      const sanitizedPassword = InputSanitizer.sanitizeText(password);
+
+      if (!sanitizedEmail || !sanitizedPassword) {
+        throw new Error('Invalid email or password format');
+      }
+
       const response = await axios.post(`${this.baseUrl}/api/users/authenticate`, {
-        email,
-        password
+        email: sanitizedEmail,
+        password: sanitizedPassword
       });
+      
       if (response.data.success && response.data.token) {
         axios.defaults.headers.common["Authorization"] = response.data.token;
         const session: Session = {
@@ -74,8 +84,14 @@ export const locationService = {
 
   async createFolder(folder: { name: string }, token: string): Promise<Folder | null> {
     try {
+      const sanitizedName = InputSanitizer.sanitizeText(folder.name);
+      if (!sanitizedName) {
+        throw new Error('Invalid folder name');
+      }
         axios.defaults.headers.common["Authorization"] = token;
-        const response = await axios.post(`${this.baseUrl}/api/folders`, {title: folder.name});
+        const response = await axios.post(`${this.baseUrl}/api/folders`, {
+        title: sanitizedName
+    });
         return response.status === 201 ? response.data : null;
     } catch (error) {
         console.error("Error creating folder:", error);
@@ -111,12 +127,23 @@ export const locationService = {
 
   async createLocation(folderId: string, location: Omit<Location, '_id' | 'folderid'>, token: string): Promise<Location | null> {
     try {
+      const sanitizedLocation = {
+        title: InputSanitizer.sanitizeText(location.title),
+        category: InputSanitizer.sanitizeText(location.category),
+        description: InputSanitizer.sanitizeText(location.description),
+        latitude: InputSanitizer.sanitizeCoordinate(location.latitude, 'lat'),
+        longitude: InputSanitizer.sanitizeCoordinate(location.longitude, 'lng')
+      };
+
+      if (!sanitizedLocation.title) {
+        throw new Error('Invalid location title');
+      }
+      if (sanitizedLocation.latitude === null || sanitizedLocation.longitude === null) {
+        throw new Error('Invali coordinates');
+      }
+
       axios.defaults.headers.common["Authorization"] = token;
-
-      console.log("Creating location with folderId:", folderId, "and location data:", location);
-      console.log("Token being used:", token);
-
-      const response = await axios.post(`${this.baseUrl}/api/folders/${folderId}/locations`, location);
+      const response = await axios.post(`${this.baseUrl}/api/folders/${folderId}/locations`, sanitizedLocation);
       await this.refreshLocationInfo();
       return response.status === 201 ? response.data : null;
     } catch (error) {

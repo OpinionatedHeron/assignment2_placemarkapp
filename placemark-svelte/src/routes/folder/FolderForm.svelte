@@ -1,6 +1,7 @@
 <script lang="ts">
   import { locationService } from "$lib/services/location-service";
   import type { Folder } from "$lib/types/location-types";
+  import { InputSanitizer } from "$lib/services/sanitizer-utils";
 
   let{
     userToken = "",
@@ -16,7 +17,25 @@
   let errorMessage = $state("");
   let isValid = $state(false);
 
+  $effect(() => {
+    const sanitizedTitle = InputSanitizer.sanitizeText(title);
+    if (title && !sanitizedTitle) {
+      errorMessage = "Folder name contains invalid characters";
+    } else if (sanitizedTitle && sanitizedTitle.length < 2) {
+      errorMessage = "Folder name needs to be at least 2 characters";
+    } else{
+      errorMessage = "";
+    }
+  });
+
   async function createFolder() {
+    const sanitizedTitle = InputSanitizer.sanitizeText(title);
+    const sanitizedDescription = InputSanitizer.sanitizeText(description);
+    if (!sanitizedTitle || sanitizedTitle.length < 2) {
+      errorMessage ="Please entera valid folder name.";
+      return;
+    }
+    
     if (!title.trim()) {
       errorMessage = "Folder name is required.";
       return;

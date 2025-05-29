@@ -1,4 +1,6 @@
 <script lang="ts">
+  import SafeText from "./SafeText.svelte";
+  
     export let locations = [];
     export let currentLocation = null;
 </script>
