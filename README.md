@@ -63,15 +63,6 @@ DELETE /api/locations/:id          # Delete location
 - **Charts** (`/charts`) - Location data visualization
 - **Reports** (`/report`) - List all saved locations
 
-## Development Commands
-
-```bash
-npm run dev         # Start dev server
-npm run build       # Build for production
-npm run preview     # Preview production build
-npm run format      # Format code
-npm run lint        # Check code quality
-```
 
 ## How It Works
 
@@ -80,16 +71,6 @@ npm run lint        # Check code quality
 3. **Add Locations** - Save places with coordinates and details
 4. **View Maps** - See your locations on interactive maps
 5. **Check Charts** - Visualize your data
-
-## State Management
-
-Uses Svelte 5 runes for reactive state:
-- User session data
-- Current locations and folders  
-- Chart data
-- Page titles
-
-Data persists in localStorage and syncs with the backend API.
 
 ## Maps
 
@@ -103,7 +84,3 @@ Data persists in localStorage and syncs with the backend API.
 - Node.js 18+
 - Backend API running on localhost:3000
 - Modern web browser
-
-## License
-
-MIT
