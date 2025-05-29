@@ -6,7 +6,7 @@ import { computeByCategory, computeByFolder } from "./location-utils";
 import { InputSanitizer } from "./sanitizer-utils";
 
 export const locationService = {
-  baseUrl: "http://localhost:3000",
+  baseUrl: "https://fullstack1-assignment1-u4ll.onrender.com",
 
   saveSession(session: Session, email: string) {
     localStorage.location = JSON.stringify({
@@ -63,7 +63,7 @@ export const locationService = {
         email: sanitizedEmail,
         password: sanitizedPassword
       });
-      
+
       if (response.data.success && response.data.token) {
         axios.defaults.headers.common["Authorization"] = response.data.token;
         const session: Session = {
